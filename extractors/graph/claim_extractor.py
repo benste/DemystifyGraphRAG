@@ -1,12 +1,12 @@
-from default_prompts import graph_extraction as entity_default_prompt
+from extractors.graph.utils import loop_extraction
 from default_prompts import claims_extraction as claim_default_prompt
 
 
 def extract(documents: dict[int: str], configured_llm: dict):
     formatting = claim_default_prompt.DEFAULT_FORMATTING
     formatting['default_prompt'] = claim_default_prompt.CLAIM_EXTRACTION_PROMPT
-    formatting['continue_prompt'] = entity_default_prompt.CONTINUE_PROMPT
-    formatting['loop_prompt'] = entity_default_prompt.LOOP_PROMPT
+    formatting['continue_prompt'] = claim_default_prompt.CONTINUE_PROMPT
+    formatting['loop_prompt'] = claim_default_prompt.LOOP_PROMPT
     
     llm_raw_output = loop_extraction(documents, formatting, configured_llm)
     
@@ -23,7 +23,7 @@ def parse_claim_tuples(claims: str, formatting: dict) -> list:
     record_delimiter = formatting['record_delimiter']
     completion_delimiter = formatting['completion_delimiter']
     tuple_delimiter = formatting['tuple_delimiter']
-
+        
     def pull_field(index: int, fields: list[str]) -> str | None:
         return fields[index].strip() if len(fields) > index else None
 
