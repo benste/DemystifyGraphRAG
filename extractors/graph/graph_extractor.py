@@ -21,9 +21,6 @@ def extract(documents: dict[int: str], configured_llm: dict) -> tuple:
         
     graph = process_graph_results(llm_raw_output, formatting['tuple_delimiter'], formatting['record_delimiter'])
     
-    # Map the "source_id" back to the "id" field
-    graph = map_sourceId_to_graph(graph, documents)
-    
     # Get a list of entities from the graph
     entities = [
         ({"name": item[0], **(item[1] or {})})
@@ -133,19 +130,3 @@ def process_graph_results(
                     )
 
         return graph
-    
-def map_sourceId_to_graph(graph, documents):
-    # Map the "source_id" back to the "id" field
-    for _, node in graph.nodes(data=True):  # type: ignore
-        if node is not None:
-            node["source_id"] = ",".join(
-                documents[int(id)].id for id in node["source_id"].split(",")
-            )
-
-    for _, _, edge in graph.edges(data=True):  # type: ignore
-        if edge is not None:
-            edge["source_id"] = ",".join(
-                documents[int(id)].id for id in edge["source_id"].split(",")
-            )
-
-    return "".join(nx.generate_graphml(graph))

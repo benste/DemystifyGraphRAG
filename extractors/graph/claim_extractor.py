@@ -1,12 +1,12 @@
-from default_prompts import graph_extraction as entity_default_prompt
 from default_prompts import claims_extraction as claim_default_prompt
+from extractors.graph.utils import loop_extraction
 
 
 def extract(documents: dict[int: str], configured_llm: dict):
     formatting = claim_default_prompt.DEFAULT_FORMATTING
     formatting['default_prompt'] = claim_default_prompt.CLAIM_EXTRACTION_PROMPT
-    formatting['continue_prompt'] = entity_default_prompt.CONTINUE_PROMPT
-    formatting['loop_prompt'] = entity_default_prompt.LOOP_PROMPT
+    formatting['continue_prompt'] = claim_default_prompt.CONTINUE_PROMPT
+    formatting['loop_prompt'] = claim_default_prompt.LOOP_PROMPT
     
     llm_raw_output = loop_extraction(documents, formatting, configured_llm)
     
