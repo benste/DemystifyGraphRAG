@@ -1,0 +1,9 @@
+llm:
+  model_path: 'models/gemma-2-9b-it-IQ4_XS.gguf'
+  tokenizer_URI: 'google/gemma-2-9b-it'
+preprocess:
+  raw_documents_folder: /home/bens/projects/DemystifyGraphRAG/data/01_raw
+  chunk:
+    column_to_chunk: 'content'
+    window_size: 300
+    overlap: 100
