@@ -1,5 +1,5 @@
 llm:
-  model_path: 'models/gemma-2-9b-it-IQ4_XS.gguf'
+  model_path: '../models/gemma-2-9b-it-IQ4_XS.gguf'
   tokenizer_URI: 'google/gemma-2-9b-it'
 preprocess:
   raw_documents_folder: /home/bens/projects/DemystifyGraphRAG/data/01_raw

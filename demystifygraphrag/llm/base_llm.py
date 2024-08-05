@@ -1,5 +1,6 @@
 from typing import List, Iterator
 from datetime import datetime
+from copy import deepcopy
 
 from .typing import ChatNames
     
@@ -8,13 +9,34 @@ class LLM:
     tokenizer = None
     chatnames: ChatNames = ChatNames()
     
-    def run_chat(self, chat: List[dict]):
+    def format_chat(self, chat: List[tuple], established_chat: List[dict] = []) -> List[dict]:
+        """format chat with the correct names ready for `tokenizer.apply_chat_template`
+
+        Args:
+            chat (List[tuple]): [(role: content), (role: content)]
+                                role (str): either "user" or "model"
+                                content (str)
+            established_chat (List[dict], optional): Already established chat to append to. Defaults to [].
+
+        Returns:
+            List[dict]: _description_
+        """
+        
+        # Make sure we don't change the input variable
+        formatted_chat = deepcopy(established_chat)
+        
+        for role, content in chat:
+            formatted_chat.append({self.chatnames[role]: content})
+            
+        return formatted_chat
+    
+    def run_chat(self, chat: List[dict], stream: bool = False) -> str:
         pass
     
-    def tokenize(self, content: str):
+    def tokenize(self, content: str) -> List[str]:
         pass
     
-    def untokenize(self, tokens: List[str]):
+    def untokenize(self, tokens: List[str]) -> str:
         pass
     
     def print_streamed(self, stream: Iterator, timeit: bool = False) -> str:

@@ -1,3 +1,7 @@
+from typing import Any
+import re
+
+import html
 from demystifygraphrag.llm.base_llm import LLM
 
 def chunk_text(text: str, llm: LLM, window_size: int, overlap: int) -> tuple[list]:
@@ -23,6 +27,17 @@ def chunk_text(text: str, llm: LLM, window_size: int, overlap: int) -> tuple[lis
         chunks_length.append(len(chunk))
         
     return chunks, chunks_length
+
+def clean_str(input: Any) -> str:
+    """Clean an input string by removing HTML escapes, control characters, and other unwanted characters."""
+    # If we get non-string input, just give it back
+    if not isinstance(input, str):
+        return input
+
+    result = html.unescape(input.strip())
+    result = result.lstrip('"').rstrip('"')
+    # https://stackoverflow.com/questions/4324790/removing-control-characters-from-a-string-in-python
+    return re.sub(r"[\x00-\x1f\x7f-\x9f]", "", result)
     
     
     

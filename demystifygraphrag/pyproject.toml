@@ -1,0 +1,10 @@
+[tool.kedro]
+package_name = "demystifygraphrag"
+project_name = "demystifygraphrag"
+kedro_init_version = "0.19.7"
+tools = ""
+example_pipeline = "False"
+source_dir = "."
+
+[tool.kedro_telemetry]
+project_id = "572942aa6f454dfab8125974e77d8c20"
