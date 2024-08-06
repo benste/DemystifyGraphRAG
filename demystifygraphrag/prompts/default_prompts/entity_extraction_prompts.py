@@ -3,15 +3,7 @@
 
 """A file containing prompts definition."""
 
-DEFAULT_FORMATTING = {
-    "entity_types": ["organization", "person", "geo", "event"],
-    "tuple_delimiter": "<|>",
-    "record_delimiter": "##",
-    "completion_delimiter": "<|COMPLETE|>",
-    "input_text": None,
-}
-
-GRAPH_EXTRACTION_PROMPT = """
+ENTITY_EXTRACTION_PROMPT = """
 -Goal-
 Given a text document that is potentially relevant to this activity and a list of entity types, identify all entities of those types from the text and all relationships among the identified entities.
 

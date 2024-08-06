@@ -43,6 +43,12 @@ loaded_documents:
   type: pandas.ParquetDataset
   filepath: data/02_loaded/raw_documents.pq
 
-preprocessed_documents:
+chunked_docs:
   type: pandas.ParquetDataset
-  filepath: data/03_intermediate/preprocessed_documents.pq
+  filepath: /home/bens/projects/DemystifyGraphRAG/data/03_intermediate/preprocessed_documents.pq
+  versioned: true
+
+raw_extracted_entities:
+  type: pandas.ParquetDataset
+  filepath: /home/bens/projects/DemystifyGraphRAG/data/03_intermediate/raw_extracted_entities.pq
+  versioned: true

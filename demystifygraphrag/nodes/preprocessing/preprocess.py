@@ -6,64 +6,41 @@ import pandas as pd
 
 from demystifygraphrag.llm.base_llm import LLM
 from demystifygraphrag.nodes.preprocessing import utils
+from demystifygraphrag.typing import preprocessing
 
 
-def raw_documents(config: dict) -> pd.DataFrame:
+def raw_documents(config: preprocessing.RawDocumentsParams) -> pd.DataFrame:
     """
       loads files from folder path and subfolders.
     """
     
     # Walk the folder path, find text files and load them
-    folder_path = config['raw_documents_folder']
+    folder_path = config.raw_documents_folder
     df = defaultdict(list)
     file_id = 0
     for root, _, files in os.walk(folder_path):
         for file in files:
             if file.endswith(".txt"):
                 df["document_path"].append(os.path.join(root, file))
-                df["content"].append(open(df["document_path"][-1], "r").read())
+                df[config.raw_content_column].append(open(df["document_path"][-1], "r").read())
                 df["document_id"].append(str(file_id))
                 file_id += 1
         
     return pd.DataFrame(df)
 
-
-def orderby(dataframe: pd.DataFrame, config: dict) -> pd.DataFrame:
-    """order pandas dataframe my keys in order
-
-    Args:
-        dataframe (pd.DataFrame): to sort
-        config (OrderByConfig): keys = what to order on, acending = 'asc' | 'desc
-
-    Returns:
-        pd.DataFrame
-    """
-    
-    config = config['orderby']
-    ascending = [asc == "asc" for asc in config['ascending']]
-    return dataframe.sort_values(by=config['keys'], ascending=ascending)
-  
-
-def zip_colums(dataframe: pd.DataFrame, config: dict) -> pd.DataFrame:
-    config = config['zip_columns']
-    
-    dataframe[config['to']] = list(zip(*[dataframe[col] for col in config['columns']], strict=True))
-    return dataframe.reset_index(drop=True)
-
-
-def chunk(dataframe: pd.DataFrame, llm: LLM, config: dict) -> pd.DataFrame:
-    column_to_chunk = config['chunk'].get("column_to_chunk") or "content"
-    window_size = config['chunk'].get("window_size")
-    overlap = config['chunk'].get("overlap")
+def chunk(dataframe: pd.DataFrame, llm: LLM, config: preprocessing.ChunkParams) -> pd.DataFrame:
+    results_column = config.results_column
+    len_column = config.results_column + '_len'
+    id_column = config.results_column + '_id'
     
     # Apply chunking per document, also saving the number of tokens in each chunk
-    dataframe['chunk'], dataframe['chunk_len'] = zip(*dataframe[column_to_chunk].apply(lambda c: utils.chunk_text(c, llm, window_size, overlap)))
+    dataframe[results_column], dataframe[len_column] = zip(*dataframe[config.column_to_chunk].apply(lambda c: utils.chunk_text(c, llm, config.window_size, config.overlap)))
     
-    # Put each chunk in it's own row, keeping the original document content and id 
-    dataframe = dataframe.explode(["chunk", "chunk_len"])
+    # Map each chunk back to the correct row
+    dataframe = dataframe.explode([results_column, len_column])
     
     # Give each chunk a unique ID
-    dataframe['chunk_id'] = list(range(len(dataframe)))
+    dataframe[id_column] = list(range(len(dataframe)))
     
     # TODO: drop content column to save space?
     

@@ -1,9 +1,50 @@
 llm:
-  model_path: '../models/gemma-2-9b-it-IQ4_XS.gguf'
+  type: demystifygraphrag.typing.LlmLoadingParams
+  model_path: '/home/bens/projects/DemystifyGraphRAG/models/gemma-2-9b-it-IQ4_XS.gguf'
   tokenizer_URI: 'google/gemma-2-9b-it'
 preprocess:
-  raw_documents_folder: /home/bens/projects/DemystifyGraphRAG/data/01_raw
+  type: demystifygraphrag.typing.PreprocessParams
+  raw_documents:
+    type: demystifygraphrag.typing.RawDocumentsParams
+    raw_documents_folder: /home/bens/projects/DemystifyGraphRAG/data/01_raw/machine_learning_intro
+    raw_content_column: 'content'
   chunk:
-    column_to_chunk: 'content'
+    type: demystifygraphrag.typing.ChunkParams
     window_size: 300
     overlap: 100
+    column_to_chunk: 'content'
+    results_column: 'chunk'
+entity_extraction:
+  type: demystifygraphrag.typing.EntityExtractionParams
+  max_gleans: 5
+  column_to_extract: 'chunk'
+  results_column: 'raw_entities'
+entity_extraction_prompt:
+  type: demystifygraphrag.typing.EntityExtractionPromptParams
+  prompts:
+    type: demystifygraphrag.typing.EntityExtractionPrompts
+    # These should't be defined here since the prompt can get large and make this file unreadable
+    # Values should rather  be passed from a node or left empty, in which case default prompts are used
+    # 
+    # entity_extraction_prompt: str
+    # continue_prompt: str
+    # loop_prompt: str
+  formatting:
+    type: demystifygraphrag.typing.EntityExtractionPromptFormatting
+    tuple_delimiter: "<|>"
+    record_delimiter: "##"
+    completion_delimiter: "<|COMPLETE|>"
+    entity_types: ["organization", "person", "geo", "event"]
+parse_raw_entities:
+  type: demystifygraphrag.typing.ParseRawEntitiesParams
+  raw_entities_column: 'raw_entities'
+  reference_column: 'chunk_id'
+summarize_prompt:
+  type: demystifygraphrag.typing.DescriptionSummarizationPromptParams
+  # The prompt should't be defined here since it can get large and make this file unreadable
+  # It should rather  be passed from a node or left empty, in which case default prompt is used
+  # prompt:
+  formatting:
+    type: demystifygraphrag.typing.DescriptionSummarizationPromptFormatting
+    entity_names: null  # This comes from the entity extraction
+    description_list: null  # This comes from the entity extraction

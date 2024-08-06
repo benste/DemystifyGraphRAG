@@ -3,11 +3,6 @@
 
 """A file containing prompts definition."""
 
-DEFAULT_FORMATTING = {
-    "entity_names": None,
-    "description_list": None,
-}
-
 SUMMARIZE_PROMPT = """
 You are a helpful assistant responsible for generating a comprehensive summary of the data provided below.
 Given one or two entities, and a list of descriptions, all related to the same entity or group of entities.

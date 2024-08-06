@@ -26,7 +26,7 @@ class LLM:
         formatted_chat = deepcopy(established_chat)
         
         for role, content in chat:
-            formatted_chat.append({"role": self.chatnames.model_dump()[role], "conent": content})
+            formatted_chat.append({"role": self.chatnames.model_dump()[role], "content": content})
             
         return formatted_chat
     

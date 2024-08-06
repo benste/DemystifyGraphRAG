@@ -1,31 +1,129 @@
-import pandas as pd
+import re
+import numbers
 
-from demystifygraphrag.prompts.default_prompts import entity_extraction_prompts
-from demystifygraphrag.nodes.entity_extraction.typing import EntityExtractionResult
-from demystifygraphrag.nodes.entity_extraction.utils import loop_extraction, process_graph_results
+import pandas as pd
+import networkx as nx
+
+from demystifygraphrag.typing import EntityExtractionResult, EntityExtractionParams, EntityExtractionPromptParams, EntityExtractionPromptFormatting, ParseRawEntitiesParams
+from demystifygraphrag.nodes.entity_extraction.utils import loop_extraction
+from demystifygraphrag.nodes.preprocessing.utils import clean_str
 from demystifygraphrag.llm.base_llm import LLM
 
 
-def extract(dataframe: pd.DataFrame, llm: LLM, config: dict) -> tuple:
-    max_gleans = config.get("max_gleans")
-    documents_column = config.get("documents_columns")
+def raw_entity_extraction(dataframe: pd.DataFrame, llm: LLM, prompt_config: EntityExtractionPromptParams, config: EntityExtractionParams) -> tuple:
+    """Let the LLM extract entities that is however just strings, output still needs to be parsed to extract structured data.
+
+    Args:
+        dataframe (pd.DataFrame)
+        llm (LLM)
+        config (EntityExtractionParams)
+        prompt_config (EntityExtractionPromptParams)
+
+    Returns:
+        pd.DataFrame: Input document with new column containing the raw entities extracted
+    """
+    dataframe.reset_index(inplace=True, drop=True)
     
-    # Prompt formatting
-    formatting = entity_extraction_prompts.DEFAULT_FORMATTING
-    formatting['default_prompt'] = entity_extraction_prompts.GRAPH_EXTRACTION_PROMPT
-    formatting['continue_prompt'] = entity_extraction_prompts.CONTINUE_PROMPT
-    formatting['loop_prompt'] = entity_extraction_prompts.LOOP_PROMPT
+    llm_raw_output = loop_extraction(dataframe[config.column_to_extract], prompt_config.prompts, prompt_config.formatting, llm, config.max_gleans)
     
-    llm_raw_output = loop_extraction(dataframe[documents_column], formatting, llm, max_gleans)
+    # Map LLM output to correct df column for intermediate saving
+    dataframe[config.results_column] = [llm_raw_output[id] for id in dataframe.chunk_id.tolist()]
         
-    graph = process_graph_results(llm_raw_output, formatting['tuple_delimiter'], formatting['record_delimiter'])
+    return dataframe
+   
+
+def parse_raw_entities(
+        dataframe: pd.DataFrame,
+        prompt_formatting: EntityExtractionPromptFormatting,
+        config: ParseRawEntitiesParams,
+    ) -> nx.Graph:
+    """Parse the result string to create an undirected unipartite graph.
+
+    Args:
+        dataframe (pd.DataFrame): Should contain a column with raw extracted entities
+        prompt_formatting (EntityExtractionPromptFormatting): formatting used for raw entity extraction.
+            Should at least contain `prompt_formatting.tuple_delimiter` and `prompt_formatting.record_delimiter`
+        config (ParseRawEntitiesParams)
+
+    Returns:
+        nx.Graph:  unipartite graph in graphML format
+    """
+    graph = nx.Graph()
+    for extracted_data, source_id in zip(*(dataframe[config.raw_entities_column], dataframe[config.reference_column])):
+        
+        records = extracted_data.split(prompt_formatting.record_delimiter)
+        for record in records:
+            # Some light cleaning
+            record = re.sub(r"^\(|\)$", "", record.strip())
+            record_attributes = record.split(prompt_formatting.tuple_delimiter)
+            
+            # Check if attribute is a node
+            if record_attributes[0] == '"entity"' and len(record_attributes) >= 4:
+                # Some cleaning
+                entity_name = clean_str(record_attributes[1].upper())
+                entity_type = clean_str(record_attributes[2].upper())
+                entity_description = clean_str(record_attributes[3])
+
+                if entity_name in graph.nodes():
+                    # Merge attributes
+                    node = graph.nodes[entity_name]
+                    node["description"] += "\n" + entity_description
+                    node["source_id"] += ", " + str(source_id)
+                    node["entity_type"] = (
+                        entity_type if entity_type != "" else node["entity_type"]
+                    )
+                else:
+                    graph.add_node(
+                        entity_name,
+                        type=entity_type,
+                        description=entity_description,
+                        source_id=str(source_id),
+                    )
+
+            # Check if attribute is an edge
+            if (
+                record_attributes[0] == '"relationship"'
+                and len(record_attributes) >= 5
+            ):
+                # Some cleaning
+                source = clean_str(record_attributes[1].upper())
+                target = clean_str(record_attributes[2].upper())
+                edge_description = clean_str(record_attributes[3])
+                edge_source_id = clean_str(str(source_id))
+                # Try to get the weight
+                weight = (
+                    float(record_attributes[-1])
+                    if isinstance(record_attributes[-1], numbers.Number)
+                    else 1.0
+                )
+                if source not in graph.nodes():
+                    graph.add_node(
+                        source,
+                        type="",
+                        description="",
+                        source_id=edge_source_id,
+                    )
+                if target not in graph.nodes():
+                    graph.add_node(
+                        target,
+                        type="",
+                        description="",
+                        source_id=edge_source_id,
+                    )
+                if graph.has_edge(source, target):
+                    # Merge edge attributes
+                    edge_data = graph.get_edge_data(source, target)
+                    if edge_data is not None:
+                        weight += edge_data["weight"]
+                        edge_source_id += ", " + str(source_id)
     
-    # Get a list of entities from the graph
-    entities = [
-        ({"name": item[0], **(item[1] or {})})
-        for item in graph.nodes(data=True)
-        if item is not None
-    ]
-
-    return EntityExtractionResult(entities=entities, graphml_graph=graph)
-
+                graph.add_edge(
+                    source,
+                    target,
+                    weight=weight,
+                    description=edge_description,
+                    source_id=edge_source_id,
+                )
+                
+    # Return as graphml
+    return "\n".join(nx.generate_graphml(graph))
