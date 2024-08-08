@@ -1,14 +1,15 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
-from demystifygraphrag.nodes.preprocessing import preprocess
-from demystifygraphrag.nodes.llm import initialize_llm
-from demystifygraphrag.nodes.entity_extraction import extract_entities
+from demystifygraphrag.preprocessing import preprocess
+from demystifygraphrag.load_llm import load_llm
+from demystifygraphrag.entity_extraction import extract_entities
+from demystifygraphrag.description_summarization import summarize_descriptions
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(
-                func=initialize_llm.initialize_gemma2_gguf,
+                func=load_llm.load_gemma2_gguf,
                 inputs=["params:llm"],
                 outputs="llm",
                 name="llm_loader_node",
@@ -32,11 +33,16 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="raw_entity_extraction_node",
             ),
             node(
-                func=extract_entities.parse_raw_entities,
-                inputs=["raw_extracted_entities", "params:entity_extraction_prompt.formatting", "params:parse_raw_entities"],
-                outputs="entity_graph",
+                func=extract_entities.raw_entities_to_graph,
+                inputs=["raw_extracted_entities", "params:entity_extraction_prompt.formatting", "params:raw_entities_to_graph"],
+                outputs="raw_entity_graph",
                 name="parse_raw_entities_node",
             ),
-            
+            node(
+                func=summarize_descriptions.summarize_descriptions,
+                inputs=["raw_entity_graph", "llm", "params:summarize_descriptions_prompt", "params:summarize_descriptions"],
+                outputs="entity_graph",
+                name="summarize_descriptions_node",
+            ),
         ]
     )

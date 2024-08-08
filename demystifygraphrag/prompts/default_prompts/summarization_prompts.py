@@ -12,7 +12,7 @@ Make sure it is written in third person, and include the entity names so we the 
 
 #######
 -Data-
-Entities: {entity_names}
+Entities: {entity_name}
 Description List: {description_list}
 #######
 Output:

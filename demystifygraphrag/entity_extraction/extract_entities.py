@@ -4,9 +4,9 @@ import numbers
 import pandas as pd
 import networkx as nx
 
-from demystifygraphrag.typing import EntityExtractionResult, EntityExtractionParams, EntityExtractionPromptParams, EntityExtractionPromptFormatting, ParseRawEntitiesParams
-from demystifygraphrag.nodes.entity_extraction.utils import loop_extraction
-from demystifygraphrag.nodes.preprocessing.utils import clean_str
+from demystifygraphrag.typing import EntityExtractionParams, EntityExtractionPromptParams, EntityExtractionPromptFormatting, RawEntitiesToGraphParams
+from demystifygraphrag.entity_extraction.utils import loop_extraction
+from demystifygraphrag.preprocessing.utils import clean_str
 from demystifygraphrag.llm.base_llm import LLM
 
 
@@ -32,10 +32,10 @@ def raw_entity_extraction(dataframe: pd.DataFrame, llm: LLM, prompt_config: Enti
     return dataframe
    
 
-def parse_raw_entities(
+def raw_entities_to_graph(
         dataframe: pd.DataFrame,
         prompt_formatting: EntityExtractionPromptFormatting,
-        config: ParseRawEntitiesParams,
+        config: RawEntitiesToGraphParams,
     ) -> nx.Graph:
     """Parse the result string to create an undirected unipartite graph.
 
@@ -43,10 +43,10 @@ def parse_raw_entities(
         dataframe (pd.DataFrame): Should contain a column with raw extracted entities
         prompt_formatting (EntityExtractionPromptFormatting): formatting used for raw entity extraction.
             Should at least contain `prompt_formatting.tuple_delimiter` and `prompt_formatting.record_delimiter`
-        config (ParseRawEntitiesParams)
+        config (RawEntitiesToGraphParams)
 
     Returns:
-        nx.Graph:  unipartite graph in graphML format
+        str:  unipartite graph in graphML format
     """
     graph = nx.Graph()
     for extracted_data, source_id in zip(*(dataframe[config.raw_entities_column], dataframe[config.reference_column])):
@@ -67,8 +67,8 @@ def parse_raw_entities(
                 if entity_name in graph.nodes():
                     # Merge attributes
                     node = graph.nodes[entity_name]
-                    node["description"] += "\n" + entity_description
-                    node["source_id"] += ", " + str(source_id)
+                    node["description"] += config.feature_delimiter + entity_description
+                    node["source_id"] += config.feature_delimiter + str(source_id)
                     node["entity_type"] = (
                         entity_type if entity_type != "" else node["entity_type"]
                     )
@@ -115,8 +115,9 @@ def parse_raw_entities(
                     edge_data = graph.get_edge_data(source, target)
                     if edge_data is not None:
                         weight += edge_data["weight"]
-                        edge_source_id += ", " + str(source_id)
-    
+                        edge_description = edge_data['description'] + config.feature_delimiter + edge_description
+                        edge_source_id = edge_data['source_id'] + config.feature_delimiter + edge_source_id
+                        
                 graph.add_edge(
                     source,
                     target,
@@ -124,6 +125,8 @@ def parse_raw_entities(
                     description=edge_description,
                     source_id=edge_source_id,
                 )
-                
-    # Return as graphml
-    return "\n".join(nx.generate_graphml(graph))
+          
+    return graph
+      
+    # # Return as graphml
+    # return "\n".join(nx.generate_graphml(graph))

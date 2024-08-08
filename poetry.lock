@@ -2550,12 +2550,12 @@ test = ["coverage", "pytest", "pytest-cov"]
 
 [[package]]
 name = "llama-cpp-python"
-version = "0.2.84"
+version = "0.2.87"
 description = "Python bindings for the llama.cpp library"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "llama_cpp_python-0.2.84.tar.gz", hash = "sha256:51bfd2918fe92060c895a9d64455e7f6370b34e5496edfeaa3f0c17439f155fe"},
+    {file = "llama_cpp_python-0.2.87.tar.gz", hash = "sha256:4dff585f533131aa44b7d9e79a62d60172f317aef15d7bf4bafeb074b55a48c4"},
 ]
 
 [package.dependencies]

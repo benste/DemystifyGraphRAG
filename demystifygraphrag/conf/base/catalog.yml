@@ -52,3 +52,13 @@ raw_extracted_entities:
   type: pandas.ParquetDataset
   filepath: /home/bens/projects/DemystifyGraphRAG/data/03_intermediate/raw_extracted_entities.pq
   versioned: true
+
+raw_entity_graph:
+  type: networkx.GraphMLDataset
+  filepath: /home/bens/projects/DemystifyGraphRAG/data/04_graph/raw_entity_graph.graphml
+  versioned: true
+
+entity_graph:
+  type: networkx.GraphMLDataset
+  filepath: /home/bens/projects/DemystifyGraphRAG/data/04_graph/entity_graph.graphml
+  versioned: true

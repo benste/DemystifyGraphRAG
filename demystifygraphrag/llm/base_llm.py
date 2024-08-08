@@ -2,7 +2,7 @@ from typing import List, Iterator
 from datetime import datetime
 from copy import deepcopy
 
-from .typing import ChatNames
+from demystifygraphrag.typing.llm import ChatNames
     
 class LLM:
     model = None
@@ -30,7 +30,7 @@ class LLM:
             
         return formatted_chat
     
-    def run_chat(self, chat: List[dict], stream: bool = False) -> str:
+    def run_chat(self, chat: List[dict], max_tokens: int = -1, stream: bool = False) -> str:
         pass
     
     def tokenize(self, content: str) -> List[str]:

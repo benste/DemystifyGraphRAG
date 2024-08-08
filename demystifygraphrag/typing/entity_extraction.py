@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel
 
 from demystifygraphrag.prompts.default_prompts import entity_extraction_prompts
   
@@ -26,13 +26,7 @@ class EntityExtractionParams(BaseModel):
     column_to_extract: str = 'chunk'
     results_column: str = 'raw_entities'
     
-class ParseRawEntitiesParams(BaseModel):
+class RawEntitiesToGraphParams(BaseModel):
     raw_entities_column: str = 'raw_entities'
     reference_column: str = 'chunk_id'  # source_id will be added to the edged and nodes. This allows source reference when quiring the graph
-
-class EntityExtractionResult(BaseModel):
-    """Entity extraction result class definition."""
-
-    entities: list[dict]
-    graphml_graph: str | None
-    
+    feature_delimiter: str = "\n"  # When the same node or edge is found multiple times, features are concatenated using this demiliter

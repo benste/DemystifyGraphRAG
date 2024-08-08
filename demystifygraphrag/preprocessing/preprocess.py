@@ -5,7 +5,7 @@ from collections import defaultdict
 import pandas as pd
 
 from demystifygraphrag.llm.base_llm import LLM
-from demystifygraphrag.nodes.preprocessing import utils
+from demystifygraphrag.preprocessing import utils
 from demystifygraphrag.typing import preprocessing
 
 
@@ -34,7 +34,7 @@ def chunk(dataframe: pd.DataFrame, llm: LLM, config: preprocessing.ChunkParams) 
     id_column = config.results_column + '_id'
     
     # Apply chunking per document, also saving the number of tokens in each chunk
-    dataframe[results_column], dataframe[len_column] = zip(*dataframe[config.column_to_chunk].apply(lambda c: utils.chunk_text(c, llm, config.window_size, config.overlap)))
+    dataframe[results_column], dataframe[len_column] = zip(*dataframe[config.column_to_chunk].apply(lambda c: utils.chunk_tokens(c, llm, config.window_size, config.overlap)))
     
     # Map each chunk back to the correct row
     dataframe = dataframe.explode([results_column, len_column])

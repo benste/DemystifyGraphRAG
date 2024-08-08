@@ -1,22 +1,19 @@
-from typing import List
-
-from pydantic import BaseModel, field_validator, Field
+from typing import List, Union
+from pydantic import BaseModel
 
 from demystifygraphrag.prompts.default_prompts import summarization_prompts
   
   
 class DescriptionSummarizationPromptFormatting(BaseModel):
-    entity_names: List[str]
-    description_list: List[str]
+    entity_name: Union[str, None]
+    description_list: Union[List[str], None]
     
 class DescriptionSummarizationPromptParams(BaseModel):
     prompt: str = summarization_prompts.SUMMARIZE_PROMPT
     formatting: DescriptionSummarizationPromptFormatting
 
 
-# class EntityExtractionResult(BaseModel):
-#     """Entity extraction result class definition."""
-
-#     entities: list[dict]
-#     graphml_graph: str | None
-    
+class DescriptionSummarizationParams(BaseModel):
+    feature_delimiter: str = "\n"  # When the same node or edge is found multiple times, features are concatenated using this demiliter
+    max_input_tokens: int = 4000
+    max_output_tokens: int = 500
