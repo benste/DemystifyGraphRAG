@@ -17,16 +17,16 @@ class EntityExtractionPrompts(BaseModel):
     continue_prompt: str = entity_extraction_prompts.CONTINUE_PROMPT
     loop_prompt: str = entity_extraction_prompts.LOOP_PROMPT
     
-class EntityExtractionPromptParams(BaseModel):
+class EntityExtractionPromptConfig(BaseModel):
     prompts: EntityExtractionPrompts
     formatting: EntityExtractionPromptFormatting
     
-class EntityExtractionParams(BaseModel):
+class EntityExtractionConfig(BaseModel):
     max_gleans: int = 5
     column_to_extract: str = 'chunk'
     results_column: str = 'raw_entities'
     
-class RawEntitiesToGraphParams(BaseModel):
+class RawEntitiesToGraphConfig(BaseModel):
     raw_entities_column: str = 'raw_entities'
     reference_column: str = 'chunk_id'  # source_id will be added to the edged and nodes. This allows source reference when quiring the graph
     feature_delimiter: str = "\n"  # When the same node or edge is found multiple times, features are concatenated using this demiliter

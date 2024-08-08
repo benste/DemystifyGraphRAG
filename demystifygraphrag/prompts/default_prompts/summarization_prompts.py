@@ -1,6 +1,3 @@
-# Copyright (c) 2024 Microsoft Corporation.
-# Licensed under the MIT License
-
 """A file containing prompts definition."""
 
 SUMMARIZE_PROMPT = """

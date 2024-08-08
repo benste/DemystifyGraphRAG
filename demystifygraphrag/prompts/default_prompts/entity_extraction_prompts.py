@@ -1,6 +1,3 @@
-# Copyright (c) 2024 Microsoft Corporation.
-# Licensed under the MIT License
-
 """A file containing prompts definition."""
 
 ENTITY_EXTRACTION_PROMPT = """

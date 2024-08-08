@@ -4,11 +4,11 @@ from functools import partial
 import networkx as nx
 
 
-from demystifygraphrag.typing import DescriptionSummarizationPromptParams, DescriptionSummarizationParams
+from demystifygraphrag.typing import DescriptionSummarizationPromptConfig, DescriptionSummarizationConfig
 from demystifygraphrag.llm.base_llm import LLM
    
 
-def summarize_descriptions(graph: nx.Graph, llm: LLM, prompt: DescriptionSummarizationPromptParams, config: DescriptionSummarizationParams) -> nx.Graph:
+def summarize_descriptions(graph: nx.Graph, llm: LLM, prompt: DescriptionSummarizationPromptConfig, config: DescriptionSummarizationConfig) -> nx.Graph:
     
     item_summarizer = partial(summarize_item, llm=llm, prompt=prompt, max_input_tokens=config.max_input_tokens, max_output_tokens=config.max_output_tokens)
     
@@ -30,7 +30,7 @@ def summarize_descriptions(graph: nx.Graph, llm: LLM, prompt: DescriptionSummari
         
     return graph
 
-def summarize_item(entity_name: str, descriptions: List[str], llm: LLM, prompt: DescriptionSummarizationPromptParams, max_input_tokens: int = 4000, max_output_tokens: int = 500):    
+def summarize_item(entity_name: str, descriptions: List[str], llm: LLM, prompt: DescriptionSummarizationPromptConfig, max_input_tokens: int = 4000, max_output_tokens: int = 500):    
     usable_tokens = max_input_tokens - _num_tokens_from_string(
             prompt.prompt, llm.tokenizer
         )
@@ -61,7 +61,7 @@ def summarize_item(entity_name: str, descriptions: List[str], llm: LLM, prompt: 
     return summarize(entity_name, descriptions_collected, llm, prompt, max_output_tokens)
         
 
-def summarize(entity_name: str, descriptions: List[str], llm: LLM, prompt: DescriptionSummarizationPromptParams, max_output_tokens: int = -1):
+def summarize(entity_name: str, descriptions: List[str], llm: LLM, prompt: DescriptionSummarizationPromptConfig, max_output_tokens: int = -1):
     prompt.formatting.entity_name = entity_name
     prompt.formatting.description_list = descriptions
     

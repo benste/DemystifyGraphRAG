@@ -9,7 +9,7 @@ from demystifygraphrag.preprocessing import utils
 from demystifygraphrag.typing import preprocessing
 
 
-def raw_documents(config: preprocessing.RawDocumentsParams) -> pd.DataFrame:
+def raw_documents(config: preprocessing.RawDocumentsConfig) -> pd.DataFrame:
     """
       loads files from folder path and subfolders.
     """
@@ -28,7 +28,7 @@ def raw_documents(config: preprocessing.RawDocumentsParams) -> pd.DataFrame:
         
     return pd.DataFrame(df)
 
-def chunk(dataframe: pd.DataFrame, llm: LLM, config: preprocessing.ChunkParams) -> pd.DataFrame:
+def chunk(dataframe: pd.DataFrame, llm: LLM, config: preprocessing.ChunkConfig) -> pd.DataFrame:
     results_column = config.results_column
     len_column = config.results_column + '_len'
     id_column = config.results_column + '_id'

@@ -1,27 +1,27 @@
 llm:
-  type: demystifygraphrag.typing.LlmLoadingParams
+  type: demystifygraphrag.typing.LlmLoadingConfig
   # model_path: '/home/bens/projects/DemystifyGraphRAG/models/gemma-2-9b-it-IQ4_XS.gguf'
   model_path: '/home/bens/projects/DemystifyGraphRAG/models/gemma-2-2b-it-Q4_K_M.gguf'
   tokenizer_URI: 'google/gemma-2-9b-it'
 preprocess:
-  type: demystifygraphrag.typing.PreprocessParams
+  type: demystifygraphrag.typing.PreprocessConfig
   raw_documents:
-    type: demystifygraphrag.typing.RawDocumentsParams
+    type: demystifygraphrag.typing.RawDocumentsConfig
     raw_documents_folder: /home/bens/projects/DemystifyGraphRAG/data/01_raw/machine_learning_intro
     raw_content_column: 'content'
   chunk:
-    type: demystifygraphrag.typing.ChunkParams
+    type: demystifygraphrag.typing.ChunkConfig
     window_size: 300
     overlap: 100
     column_to_chunk: 'content'
     results_column: 'chunk'
 entity_extraction:
-  type: demystifygraphrag.typing.EntityExtractionParams
+  type: demystifygraphrag.typing.EntityExtractionConfig
   max_gleans: 5
   column_to_extract: 'chunk'
   results_column: 'raw_entities'
 entity_extraction_prompt:
-  type: demystifygraphrag.typing.EntityExtractionPromptParams
+  type: demystifygraphrag.typing.EntityExtractionPromptConfig
   prompts:
     type: demystifygraphrag.typing.EntityExtractionPrompts
     # These should't be defined here since the prompt can get large and make this file unreadable
@@ -37,17 +37,17 @@ entity_extraction_prompt:
     completion_delimiter: "<|COMPLETE|>"
     entity_types: ["organization", "person", "geo", "event"]
 raw_entities_to_graph:
-  type: demystifygraphrag.typing.RawEntitiesToGraphParams
+  type: demystifygraphrag.typing.RawEntitiesToGraphConfig
   raw_entities_column: 'raw_entities'
   reference_column: 'chunk_id'
   feature_delimiter: "\n" # When the same node or edge is found multiple times, features are concatenated using this demiliter
 summarize_descriptions:
-  type: demystifygraphrag.typing.DescriptionSummarizationParams
+  type: demystifygraphrag.typing.DescriptionSummarizationConfig
   max_input_tokens: 4000
   max_output_tokens: 500
   feature_delimiter: "\n"  # Used to 'un-cocatenate' descriptions. When the same node or edge was found multiple times, features were concatenated using this demiliter
 summarize_descriptions_prompt:
-  type: demystifygraphrag.typing.DescriptionSummarizationPromptParams
+  type: demystifygraphrag.typing.DescriptionSummarizationPromptConfig
   # The prompt should't be defined here since it can get large and make this file unreadable
   # It should rather  be passed from a node or left empty, in which case default prompt is used
   # prompt: str

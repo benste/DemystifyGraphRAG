@@ -8,12 +8,12 @@ class DescriptionSummarizationPromptFormatting(BaseModel):
     entity_name: Union[str, None]
     description_list: Union[List[str], None]
     
-class DescriptionSummarizationPromptParams(BaseModel):
+class DescriptionSummarizationPromptConfig(BaseModel):
     prompt: str = summarization_prompts.SUMMARIZE_PROMPT
     formatting: DescriptionSummarizationPromptFormatting
 
 
-class DescriptionSummarizationParams(BaseModel):
+class DescriptionSummarizationConfig(BaseModel):
     feature_delimiter: str = "\n"  # When the same node or edge is found multiple times, features are concatenated using this demiliter
     max_input_tokens: int = 4000
     max_output_tokens: int = 500

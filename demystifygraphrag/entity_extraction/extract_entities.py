@@ -4,20 +4,20 @@ import numbers
 import pandas as pd
 import networkx as nx
 
-from demystifygraphrag.typing import EntityExtractionParams, EntityExtractionPromptParams, EntityExtractionPromptFormatting, RawEntitiesToGraphParams
+from demystifygraphrag.typing import EntityExtractionConfig, EntityExtractionPromptConfig, EntityExtractionPromptFormatting, RawEntitiesToGraphConfig
 from demystifygraphrag.entity_extraction.utils import loop_extraction
 from demystifygraphrag.preprocessing.utils import clean_str
 from demystifygraphrag.llm.base_llm import LLM
 
 
-def raw_entity_extraction(dataframe: pd.DataFrame, llm: LLM, prompt_config: EntityExtractionPromptParams, config: EntityExtractionParams) -> tuple:
+def raw_entity_extraction(dataframe: pd.DataFrame, llm: LLM, prompt_config: EntityExtractionPromptConfig, config: EntityExtractionConfig) -> tuple:
     """Let the LLM extract entities that is however just strings, output still needs to be parsed to extract structured data.
 
     Args:
         dataframe (pd.DataFrame)
         llm (LLM)
-        config (EntityExtractionParams)
-        prompt_config (EntityExtractionPromptParams)
+        config (EntityExtractionConfig)
+        prompt_config (EntityExtractionPromptConfig)
 
     Returns:
         pd.DataFrame: Input document with new column containing the raw entities extracted
@@ -35,7 +35,7 @@ def raw_entity_extraction(dataframe: pd.DataFrame, llm: LLM, prompt_config: Enti
 def raw_entities_to_graph(
         dataframe: pd.DataFrame,
         prompt_formatting: EntityExtractionPromptFormatting,
-        config: RawEntitiesToGraphParams,
+        config: RawEntitiesToGraphConfig,
     ) -> nx.Graph:
     """Parse the result string to create an undirected unipartite graph.
 
@@ -43,7 +43,7 @@ def raw_entities_to_graph(
         dataframe (pd.DataFrame): Should contain a column with raw extracted entities
         prompt_formatting (EntityExtractionPromptFormatting): formatting used for raw entity extraction.
             Should at least contain `prompt_formatting.tuple_delimiter` and `prompt_formatting.record_delimiter`
-        config (RawEntitiesToGraphParams)
+        config (RawEntitiesToGraphConfig)
 
     Returns:
         str:  unipartite graph in graphML format
@@ -127,6 +127,3 @@ def raw_entities_to_graph(
                 )
           
     return graph
-      
-    # # Return as graphml
-    # return "\n".join(nx.generate_graphml(graph))
