@@ -3,6 +3,7 @@ llm:
   # model_path: '/home/bens/projects/DemystifyGraphRAG/models/gemma-2-9b-it-IQ4_XS.gguf'
   model_path: '/home/bens/projects/DemystifyGraphRAG/models/gemma-2-2b-it-Q4_K_M.gguf'
   tokenizer_URI: 'google/gemma-2-9b-it'
+  context_size: 8192
 preprocess:
   type: demystifygraphrag.typing.PreprocessConfig
   raw_documents:
@@ -55,3 +56,6 @@ summarize_descriptions_prompt:
     type: demystifygraphrag.typing.DescriptionSummarizationPromptFormatting
     entity_name: null  # This comes from the entity extraction
     description_list: null  # This comes from the entity extraction
+cluster:
+  type: demystifygraphrag.typing.ClusterConfig
+  max_comm_size: 10

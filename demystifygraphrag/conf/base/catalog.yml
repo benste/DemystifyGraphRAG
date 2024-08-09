@@ -62,3 +62,8 @@ entity_graph:
   type: networkx.GraphMLDataset
   filepath: /home/bens/projects/DemystifyGraphRAG/data/04_graph/entity_graph.graphml
   versioned: true
+
+clustered_entity_graph:
+  type: networkx.GraphMLDataset
+  filepath: /home/bens/projects/DemystifyGraphRAG/data/04_graph/clustered_entity_graph.graphml
+  versioned: true

@@ -4,6 +4,7 @@ from demystifygraphrag.preprocessing import preprocess
 from demystifygraphrag.load_llm import load_llm
 from demystifygraphrag.entity_extraction import extract_entities
 from demystifygraphrag.description_summarization import summarize_descriptions
+from demystifygraphrag.clustering import leiden
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -43,6 +44,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["raw_entity_graph", "llm", "params:summarize_descriptions_prompt", "params:summarize_descriptions"],
                 outputs="entity_graph",
                 name="summarize_descriptions_node",
+            ),
+            node(
+                func=leiden.leiden_clustering,
+                inputs=["entity_graph", "params:cluster"],
+                outputs="clustered_entity_graph",
+                name="cluster_node",
             ),
         ]
     )
